@@ -1,0 +1,50 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.ProductSeekMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加求购记录 -->
+	<insert id="addProductSeek" parameterType="productSeek">
+		insert into t_productSeek(productPhoto,productName,productClassObj,publish,author,price,xjcd,seekDesc,userObj,addTime) values 
+		(#{productPhoto},#{productName},#{productClassObj.productClassId},#{publish},#{author},#{price},#{xjcd},#{seekDesc},#{userObj.user_name},#{addTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询求购记录 -->
+	<select id="queryProductSeek" resultMap="productSeekMap" >
+		select t_productSeek.* from t_productSeek,t_productClass,t_userInfo ${where} and t_productSeek.productClassObj = t_productClass.productClassId and t_productSeek.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="productSeekMap" type="productSeek">
+        <id property="seekId" column="seekId" />
+        <association property="productClassObj" column="productClassObj" select="com.chengxusheji.mapper.ProductClassMapper.getProductClass" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有求购记录 -->
+	<select id="queryProductSeekList" resultMap="productSeekMap" >
+		select t_productSeek.* from t_productSeek,t_productClass,t_userInfo ${where} and t_productSeek.productClassObj = t_productClass.productClassId and t_productSeek.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的求购记录数 -->
+	<select id="queryProductSeekCount" resultType="int">
+		select count(*) from t_productSeek,t_productClass,t_userInfo ${where} and t_productSeek.productClassObj = t_productClass.productClassId and t_productSeek.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个求购记录 -->
+	<select id="getProductSeek" parameterType="int" resultMap="productSeekMap">
+		select * from t_productSeek where t_productSeek.seekId = #{seekId}
+	</select>
+
+	<!-- 更新求购记录 -->
+	<update id="updateProductSeek" parameterType="productSeek">
+		update t_productSeek set productPhoto=#{productPhoto},productName=#{productName},productClassObj=#{productClassObj.productClassId},publish=#{publish},author=#{author},price=#{price},xjcd=#{xjcd},seekDesc=#{seekDesc},userObj=#{userObj.user_name},addTime=#{addTime} where seekId = #{seekId}
+	</update>
+
+	<!-- 删除求购记录 -->
+	<delete id="deleteProductSeek" parameterType="int">
+		delete from t_productSeek where seekId=#{seekId}
+	</delete>
+
+</mapper>

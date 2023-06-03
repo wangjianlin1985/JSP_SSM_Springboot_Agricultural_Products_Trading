@@ -1,0 +1,50 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.ProductOrderMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加农产品订单记录 -->
+	<insert id="addProductOrder" parameterType="productOrder">
+		insert into t_productOrder(productSellObj,userObj,price,orderMemo,addTime) values 
+		(#{productSellObj.sellId},#{userObj.user_name},#{price},#{orderMemo},#{addTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询农产品订单记录 -->
+	<select id="queryProductOrder" resultMap="productOrderMap" >
+		select t_productOrder.* from t_productOrder,t_productSell,t_userInfo ${where} and t_productOrder.productSellObj = t_productSell.sellId and t_productOrder.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="productOrderMap" type="productOrder">
+        <id property="orderId" column="orderId" />
+        <association property="productSellObj" column="productSellObj" select="com.chengxusheji.mapper.ProductSellMapper.getProductSell" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有农产品订单记录 -->
+	<select id="queryProductOrderList" resultMap="productOrderMap" >
+		select t_productOrder.* from t_productOrder,t_productSell,t_userInfo ${where} and t_productOrder.productSellObj = t_productSell.sellId and t_productOrder.userObj = t_userInfo.user_name order by t_productOrder.addTime DESC
+	</select>
+
+    <!-- 按照查询条件的农产品订单记录数 -->
+	<select id="queryProductOrderCount" resultType="int">
+		select count(*) from t_productOrder,t_productSell,t_userInfo ${where} and t_productOrder.productSellObj = t_productSell.sellId and t_productOrder.userObj = t_userInfo.user_name order by t_productOrder.addTime DESC
+	</select>
+
+	<!-- 根据主键查询某个农产品订单记录 -->
+	<select id="getProductOrder" parameterType="int" resultMap="productOrderMap">
+		select * from t_productOrder where t_productOrder.orderId = #{orderId}
+	</select>
+
+	<!-- 更新农产品订单记录 -->
+	<update id="updateProductOrder" parameterType="productOrder">
+		update t_productOrder set productSellObj=#{productSellObj.sellId},userObj=#{userObj.user_name},price=#{price},orderMemo=#{orderMemo},addTime=#{addTime} where orderId = #{orderId}
+	</update>
+
+	<!-- 删除农产品订单记录 -->
+	<delete id="deleteProductOrder" parameterType="int">
+		delete from t_productOrder where orderId=#{orderId}
+	</delete>
+
+</mapper>

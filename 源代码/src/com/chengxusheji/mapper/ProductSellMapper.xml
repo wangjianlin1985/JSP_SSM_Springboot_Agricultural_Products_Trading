@@ -1,0 +1,50 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.ProductSellMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加农产品预售记录 -->
+	<insert id="addProductSell" parameterType="productSell">
+		insert into t_productSell(productPhoto,productName,productClassObj,publish,author,sellPrice,xjcd,sellDesc,userObj,addTime) values 
+		(#{productPhoto},#{productName},#{productClassObj.productClassId},#{publish},#{author},#{sellPrice},#{xjcd},#{sellDesc},#{userObj.user_name},#{addTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询农产品预售记录 -->
+	<select id="queryProductSell" resultMap="productSellMap" >
+		select t_productSell.* from t_productSell,t_productClass,t_userInfo ${where} and t_productSell.productClassObj = t_productClass.productClassId and t_productSell.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="productSellMap" type="productSell">
+        <id property="sellId" column="sellId" />
+        <association property="productClassObj" column="productClassObj" select="com.chengxusheji.mapper.ProductClassMapper.getProductClass" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有农产品预售记录 -->
+	<select id="queryProductSellList" resultMap="productSellMap" >
+		select t_productSell.* from t_productSell,t_productClass,t_userInfo ${where} and t_productSell.productClassObj = t_productClass.productClassId and t_productSell.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的农产品预售记录数 -->
+	<select id="queryProductSellCount" resultType="int">
+		select count(*) from t_productSell,t_productClass,t_userInfo ${where} and t_productSell.productClassObj = t_productClass.productClassId and t_productSell.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个农产品预售记录 -->
+	<select id="getProductSell" parameterType="int" resultMap="productSellMap">
+		select * from t_productSell where t_productSell.sellId = #{sellId}
+	</select>
+
+	<!-- 更新农产品预售记录 -->
+	<update id="updateProductSell" parameterType="productSell">
+		update t_productSell set productPhoto=#{productPhoto},productName=#{productName},productClassObj=#{productClassObj.productClassId},publish=#{publish},author=#{author},sellPrice=#{sellPrice},xjcd=#{xjcd},sellDesc=#{sellDesc},userObj=#{userObj.user_name},addTime=#{addTime} where sellId = #{sellId}
+	</update>
+
+	<!-- 删除农产品预售记录 -->
+	<delete id="deleteProductSell" parameterType="int">
+		delete from t_productSell where sellId=#{sellId}
+	</delete>
+
+</mapper>
